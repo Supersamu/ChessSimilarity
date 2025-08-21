@@ -1,11 +1,12 @@
+# I did not find a way to get Usernames from FIDE ids, so I will use this list from
+# https://lichess.org/forum/general-chess-discussion/top-20-fide-players-lichess-id :
+
 Legal_names = [
     "Magnus Carlsen",
     "Alireza Firouzja",
     "Fabiano Caruana",
     "Ian Nepomniachtchi",
     "Anish Giri",
-    "Wesley So",
-    "Shakhriyar Mamedyarov",
     "Alexander Grischuk",
     "Maxime Vachier-Lagrave",
     "Teimour Radjabov",
@@ -20,8 +21,6 @@ Lichess_names = [
     "Bombegranate",       # Fabiano Caruana
     "Jepetto",            # Ian Nepomniachtchi
     "AnishGiri",          # Anish Giri
-    "gmwesleyso1993",     # Wesley So
-    "Azerichessss",       # Shakhriyar Mamedyarov
     "Sasha",              # Alexander Grischuk
     "avalongamemaster",   # Maxime Vachier-Lagrave
     "BakukaDaku87",       # Teimour Radjabov
