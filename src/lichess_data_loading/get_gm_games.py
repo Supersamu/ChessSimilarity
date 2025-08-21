@@ -10,12 +10,6 @@ from collections import defaultdict
 import os
 import time
 
-with open('src/lichess_data_loading/api_token.txt') as f:
-    token = f.read()
-
-session = berserk.TokenSession(token)
-client = berserk.Client(session)
-
 
 def get_game_moves(lichess_name, color):
     games_received = False
@@ -41,32 +35,39 @@ def get_game_moves(lichess_name, color):
                 games_received = True  # Stop retrying on other errors
     return game_moves
 
+def get_all_games():
+    if os.path.exists('src/lichess_data_loading/gm_games.json'):
+        with open('src/lichess_data_loading/gm_games.json') as f:
+            data = json.load(f)
+            games_white = defaultdict(list, data.get("white", {}))
+            games_black = defaultdict(list, data.get("black", {}))
+    else:
+        games_white = defaultdict(list)
+        games_black = defaultdict(list)
 
-if os.path.exists('src/lichess_data_loading/gm_games.json'):
-    with open('src/lichess_data_loading/gm_games.json') as f:
-        data = json.load(f)
-        games_white = defaultdict(list, data.get("white", {}))
-        games_black = defaultdict(list, data.get("black", {}))
-else:
-    games_white = defaultdict(list)
-    games_black = defaultdict(list)
+    for lichess_name in Lichess_names:
+        # Retrieve white games
+        if lichess_name not in games_white:
+            print(f"Retrieving white games for {lichess_name}")
+            white_games = get_game_moves(lichess_name, "white")
+            games_white[lichess_name] = white_games
+            # Save progress
+            with open('src/lichess_data_loading/gm_games.json', 'w') as f:
+                json.dump({"white": games_white, "black": games_black}, f)
 
-for lichess_name in Lichess_names:
-    # Retrieve white games
-    if lichess_name not in games_white:
-        print(f"Retrieving white games for {lichess_name}")
-        white_games = get_game_moves(lichess_name, "white")
-        games_white[lichess_name] = white_games
-        # Save progress
-        with open('src/lichess_data_loading/gm_games.json', 'w') as f:
-            json.dump({"white": games_white, "black": games_black}, f)
+        # Retrieve black games
+        if lichess_name not in games_black:
+            print(f"Retrieving black games for {lichess_name}")
+            black_games = get_game_moves(lichess_name, "black")
+            games_black[lichess_name] = black_games
+            # Save progress
+            with open('src/lichess_data_loading/gm_games.json', 'w') as f:
+                json.dump({"white": games_white, "black": games_black}, f)
 
-    # Retrieve black games
-    if lichess_name not in games_black:
-        print(f"Retrieving black games for {lichess_name}")
-        black_games = get_game_moves(lichess_name, "black")
-        games_black[lichess_name] = black_games
-        # Save progress
-        with open('src/lichess_data_loading/gm_games.json', 'w') as f:
-            json.dump({"white": games_white, "black": games_black}, f)
-    
+if __name__ == "__main__":
+    with open('src/lichess_data_loading/api_token.txt') as f:
+        token = f.read()
+
+    session = berserk.TokenSession(token)
+    client = berserk.Client(session)
+    get_all_games()
