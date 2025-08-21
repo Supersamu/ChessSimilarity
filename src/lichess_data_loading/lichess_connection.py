@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 
-with open('src/lichess_stuff/api_token.txt') as f:
+with open('src/lichess_data_loading/api_token.txt') as f:
     token = f.read()
 
 session = berserk.TokenSession(token)
