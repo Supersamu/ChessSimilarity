@@ -4,7 +4,6 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from typing import Tuple, Optional
 from functools import reduce
-from data_loader import create_dataloaders
 
 
 class ChessModelTrainer:
