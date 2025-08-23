@@ -53,24 +53,3 @@ def transform_board_arrays_to_samples(color, boardstates):
         samples.append(np.stack((original_position, subsequent_position)))  # shape: 2, 12, 8, 8
     return samples
 
-
-if __name__ == "__main__":
-    with open('src/lichess_data_loading/gm_games.json') as f:
-        data = json.load(f)
-    list_of_labels = []
-    list_of_samples = []
-    for label, lichess_name in enumerate(Lichess_names):
-        for color in ["white", "black"]:
-            pgns_as_color = data[color][lichess_name]
-            for pgn in pgns_as_color:
-                boardstates = pgn_to_3d_arrays(pgn)
-                samples = transform_board_arrays_to_samples(color, boardstates)
-                list_of_samples.extend(samples)
-                list_of_labels.extend([label] * len(samples))
-    # Convert the samples and labels to tensors and save them
-    x = np.array(list_of_samples, dtype=np.float32)
-    y = np.array(list_of_labels, dtype=np.int64)
-    torch.save(torch.tensor(np.array(list_of_samples), dtype=torch.float32), 'src/data/samples.pt')
-    torch.save(torch.tensor(np.array(list_of_labels), dtype=torch.int64), 'src/data/labels.pt')
-
-    
