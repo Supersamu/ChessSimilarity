@@ -32,7 +32,7 @@ def pgn_to_3d_arrays(pgn):
     game = chess.pgn.read_game(io.StringIO(pgn))
     board = game.board()
     board_states = [board_to_3d_array(board)]
-    
+
     # Iterate through moves
     for move in game.mainline_moves():
         board.push(move)
@@ -48,8 +48,8 @@ def transform_board_arrays_to_samples(color, boardstates):
         # if the player of interest is black, we need to flip along the first axis 
         # because we always want to look at the board from the same direction
         if color == "black":
-            original_position = np.flip(original_position, axis=0)
-            subsequent_position = np.flip(subsequent_position, axis=0)
+            original_position = np.flip(original_position, axis=[0, 1])
+            subsequent_position = np.flip(subsequent_position, axis=[0, 1])
         samples.append(np.stack((original_position, subsequent_position)))  # shape: 2, 12, 8, 8
     return samples
 

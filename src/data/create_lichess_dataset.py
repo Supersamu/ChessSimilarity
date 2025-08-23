@@ -23,6 +23,7 @@ def create_player_dataset(lichess_name, full_data):
     
     os.makedirs(f'src/data/data_per_player/{lichess_name}', exist_ok=True)
     label = Lichess_names.index(lichess_name)
+    print(label)
     for color in ["white", "black"]:
         # initialize set of pgns to exclude duplicates
         seen_pgns = set()
