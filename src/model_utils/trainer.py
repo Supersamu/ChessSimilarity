@@ -11,12 +11,20 @@ class ChessModelTrainer:
     Trainer class for the chess similarity model.
     """
     
-    def __init__(self, model: nn.Module, device: str = 'cpu'):
+    def __init__(self, model: nn.Module, lr: float, optimizer_name: str = 'adam', device: str = 'cpu'):
+        """
+        Initialize the trainer.
+        """
         self.model = model.to(device)
         self.device = device
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.Adam(model.parameters(), lr=0.001)
-        
+        if optimizer_name.lower() == 'adam':
+            self.optimizer = optim.Adam(model.parameters(), lr=lr)
+        elif optimizer_name.lower() == 'sgd':
+            self.optimizer = optim.SGD(model.parameters(), lr=lr)
+        else:
+            raise ValueError(f"Unknown optimizer: {optimizer_name}")
+
     def train_epoch(self, dataloader: DataLoader) -> float:
         """Train for one epoch and return average loss."""
         self.model.train()
