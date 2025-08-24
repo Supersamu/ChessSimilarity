@@ -1,10 +1,10 @@
 import mlflow
 import optuna
 from functools import partial
-from src.mlflow_demo.utils import create_train_val_test_split
-from src.model_utils.base_model import ChessCNN
-from src.model_utils.trainer import ChessModelTrainer
-from src.lichess_data_loading.gm_usernames import Lichess_names
+from mlflow_utils import create_train_val_test_split
+from model_utils.base_model import ChessCNN
+from model_utils.trainer import ChessModelTrainer
+from lichess_data_loading.gm_usernames import Lichess_names
 
 
 def objective(trial: optuna.Trial) -> float:
@@ -37,7 +37,7 @@ def objective(trial: optuna.Trial) -> float:
                                                                                train_vs_val_split=params["train_vs_val_split"],
                                                                                random_seed=params["random_seed"])
         # Create model
-        model = ChessCNN(input_channels=16, hidden_channels=num_channels, 
+        model = ChessCNN(input_channels=12, hidden_channels=num_channels, 
                          dropout_rate=params["dropout_rate"], num_classes=num_classes)
         trainer = ChessModelTrainer(model, lr=params["lr"], optimizer_name=params["optimizer"], 
                                     device=params["device"])
@@ -45,7 +45,6 @@ def objective(trial: optuna.Trial) -> float:
         # Train for a few epochs
         best_val_acc = 0
         for epoch in range(params["epochs"]):
-            # Training code (abbreviated)...
             train_loss, train_acc = trainer.train_epoch(train_loader)
             val_loss, val_acc = trainer.evaluate(val_loader)
             mlflow.log_metrics(
