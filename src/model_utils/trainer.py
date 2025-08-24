@@ -3,9 +3,6 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from typing import Tuple, Optional
-from functools import reduce
-import optuna
-
 
 class ChessModelTrainer:
     """
