@@ -4,6 +4,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from typing import Tuple, Optional
 from functools import reduce
+import optuna
 
 
 class ChessModelTrainer:
@@ -25,50 +26,48 @@ class ChessModelTrainer:
         else:
             raise ValueError(f"Unknown optimizer: {optimizer_name}")
 
-    def train_epoch(self, dataloader: DataLoader) -> float:
-        """Train for one epoch and return average loss."""
-        self.model.train()
-        total_loss = 0.0
-        
-        for batch_idx, (data, targets) in enumerate(dataloader):
-            data, targets = data.to(self.device), targets.to(self.device)
-            
-            # Forward pass
-            self.optimizer.zero_grad()
-            outputs = self.model(data)
-            loss = self.criterion(outputs, targets)
-            
-            # Backward pass
-            loss.backward()
-            self.optimizer.step()
-            
-            total_loss += loss.item()
-            
-            if batch_idx % 100 == 0:
-                print(f'Batch {batch_idx}, Loss: {loss.item():.4f}')
-        
-        return total_loss / len(dataloader)
-    
-    def evaluate(self, dataloader: DataLoader) -> Tuple[float, float]:
-        """Evaluate the model and return loss and accuracy."""
-        self.model.eval()
+    def run_epoch(self, dataloader, training: bool):
         total_loss = 0.0
         correct = 0
         total = 0
-        
-        with torch.no_grad():
-            for data, targets in dataloader:
-                data, targets = data.to(self.device), targets.to(self.device)
-                outputs = self.model(data)
-                loss = self.criterion(outputs, targets)
-                
-                total_loss += loss.item()
-                _, predicted = torch.max(outputs.data, 1)
-                total += targets.size(0)
-                correct += (predicted == targets).sum().item()
-        
+
+        for data, targets in dataloader:
+            data, targets = data.to(self.device), targets.to(self.device)
+            
+            # Forward pass
+            if training:
+                self.optimizer.zero_grad()
+            outputs = self.model(data)
+            loss = self.criterion(outputs, targets)
+
+            if training:
+                # Backward pass
+                loss.backward()
+                self.optimizer.step()
+            
+            total_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            total += targets.size(0)
+            correct += (predicted == targets).sum().item()
+
         accuracy = 100 * correct / total
         avg_loss = total_loss / len(dataloader)
+        return avg_loss, accuracy
+
+    def train_epoch(self, dataloader: DataLoader) -> float:
+        """Train for one epoch and return average loss."""
+        self.model.train()
+        
+        accuracy, avg_loss = self.run_epoch(dataloader, training=True)
+
+        return avg_loss, accuracy
+
+    def evaluate(self, dataloader: DataLoader) -> Tuple[float, float]:
+        """Evaluate the model and return loss and accuracy."""
+        self.model.eval()
+        
+        with torch.no_grad():
+            avg_loss, accuracy = self.run_epoch(dataloader, training=False)
         
         return avg_loss, accuracy
     
